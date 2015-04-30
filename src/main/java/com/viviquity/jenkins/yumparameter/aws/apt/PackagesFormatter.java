@@ -13,7 +13,7 @@ public class PackagesFormatter {
 	public Map<String, String> format(List<Package> packages){
 		Map<String, String> result = new TreeMap<String, String>(versionComparator);
 		for(Package pack : packages)
-			result.put(String.format("%s-%s", pack.name, pack.version), String.format("%s=%s", pack.name, pack.version));
+			result.put(String.format("%s=%s", pack.name, pack.version), String.format("%s=%s", pack.name, pack.version));
 		return result;
 	}
 	
