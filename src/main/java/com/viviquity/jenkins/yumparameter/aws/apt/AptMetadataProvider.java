@@ -3,6 +3,7 @@ package com.viviquity.jenkins.yumparameter.aws.apt;
 import java.io.InputStream;
 import java.util.Map;
 
+import com.google.common.base.Optional;
 import com.viviquity.jenkins.yumparameter.aws.PackageMetadataProvider;
 
 
@@ -12,8 +13,8 @@ public class AptMetadataProvider implements PackageMetadataProvider {
 	private PackagesFormatter formatter = new PackagesFormatter();
 	
 	@Override
-	public Map<String, String> extractPackageMetadata(InputStream file) {
-		return formatter.format(parser.parse(file));
+	public Map<String, String> extractPackageMetadata(InputStream file, Optional<String> pack) {
+		return formatter.format(parser.parse(file), pack);
 	}
 
 	@Override

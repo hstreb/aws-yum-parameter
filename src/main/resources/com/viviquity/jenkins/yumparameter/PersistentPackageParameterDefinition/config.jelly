@@ -9,6 +9,9 @@
     <f:entry title="${%Repo path}" field="repoPath">
         <f:textbox name="parameter.repoPath" value="${instance.repoPath}" />
     </f:entry>
+    <f:entry title="${%Pack}" field="pack">
+        <f:textbox name="parameter.pack" value="${instance.pack}" />
+    </f:entry>
     <f:entry field="repositoryType" name="repositoryType" title="Choose Repository Type">
         <select name="repositoryType">
         	<option value="apt">Apt</option>

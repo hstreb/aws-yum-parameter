@@ -5,18 +5,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.common.base.Optional;
 import com.viviquity.jenkins.yumparameter.aws.apt.model.Package;
 
 public class PackagesFormatter {
 	private VersionComparator versionComparator = new VersionComparator();
 	
-	public Map<String, String> format(List<Package> packages){
+	public Map<String, String> format(List<Package> packages, Optional<String> packFilter){
 		Map<String, String> result = new TreeMap<String, String>(versionComparator);
-		for(Package pack : packages)
-			result.put(String.format("%s=%s", pack.name, pack.version), String.format("%s=%s", pack.name, pack.version));
+		if (packFilter.isPresent()) {
+			for (Package pack : packages) {
+				if (pack.name.equals(packFilter.get()))
+					result.put(getFormat(pack), getFormat(pack));
+			}
+		} else {
+			for (Package pack : packages) {
+				result.put(getFormat(pack), getFormat(pack));
+			}
+		}
 		return result;
 	}
-	
+
+	private String getFormat(Package pack) {
+		return String.format("%s=%s", pack.name, pack.version);
+	}
+
 	private class VersionComparator implements Comparator<String> {
 
 		@Override

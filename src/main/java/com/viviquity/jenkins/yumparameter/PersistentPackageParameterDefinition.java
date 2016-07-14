@@ -38,6 +38,7 @@ public class PersistentPackageParameterDefinition extends SimpleParameterDefinit
     private final String awsSecretAccessKey;
     private final String bucketName;
     private final String repoPath;
+    private final String pack;
     private final String repositoryType;
     
     /**
@@ -49,16 +50,19 @@ public class PersistentPackageParameterDefinition extends SimpleParameterDefinit
      * @param awsSecretAccessKey the secret access key, if required.
      * @param bucketName the name of the S3 bucket where the repo is hosted.
      * @param repoPath the path to target the S3 repo.
+     * @param pack the pack filter.
+     * @param repositoryType the repository type.
      */
     @DataBoundConstructor
     public PersistentPackageParameterDefinition(String name, String description, boolean useAwsKeys, String awsAccessKeyId, String awsSecretAccessKey,
-                                            String bucketName, String repoPath, String repositoryType) {
+                                            String bucketName, String repoPath, String pack, String repositoryType) {
         super(name, description);
         this.useAwsKeys = useAwsKeys;
         this.awsAccessKeyId = awsAccessKeyId;
         this.awsSecretAccessKey = awsSecretAccessKey;
         this.bucketName = bucketName;
         this.repoPath = repoPath;
+        this.pack = pack;
         this.repositoryType = repositoryType; 
     }
 
@@ -107,12 +111,12 @@ public class PersistentPackageParameterDefinition extends SimpleParameterDefinit
      */
     @Exported
     public Map<String, String> getChoices() throws JAXBException, IOException {
-        final AwsClientReader.Builder builder = AwsClientReader.Builder.newInstance(repoPath, repositoryType);
+        final AwsClientReader.Builder builder = AwsClientReader.Builder.newInstance(repoPath, repositoryType, pack);
         if (useAwsKeys && StringUtils.isNotBlank(awsAccessKeyId) && StringUtils.isNotBlank(awsSecretAccessKey)) {
             builder.withAwsAccessKeys(awsAccessKeyId, awsSecretAccessKey);
         }
         final AwsClientReader reader = builder.build();
-        return reader.getPackageMap(bucketName, repoPath);
+        return reader.getPackageMap(bucketName);
     }
 
     /**
@@ -153,6 +157,14 @@ public class PersistentPackageParameterDefinition extends SimpleParameterDefinit
      */
     public String getRepoPath() {
         return repoPath;
+    }
+
+    /**
+     * Parameter for retrieving the value in the config form
+     * @return the pack to be used to filter
+     */
+    public String getPack() {
+        return pack;
     }
 
     /**

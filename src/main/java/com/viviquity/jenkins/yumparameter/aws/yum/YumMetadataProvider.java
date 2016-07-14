@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.viviquity.jenkins.yumparameter.aws.PackageMetadataProvider;
 import com.viviquity.jenkins.yumparameter.aws.yum.model.Metadata;
@@ -15,17 +16,17 @@ public class YumMetadataProvider implements PackageMetadataProvider {
 	private YumPrimaryParser parser = new YumPrimaryParser();
 
 	@Override
-	public Map<String, String> extractPackageMetadata(InputStream file) {
+	public Map<String, String> extractPackageMetadata(InputStream file, Optional<String> pack) {
 		try {
 	        final Metadata metadata = parser.parse(new GZIPInputStream(file));
-	        return buildPackageMap(metadata);			
+	        return buildPackageMap(metadata, pack);
 		} catch (IOException e){
 			throw new RuntimeException("Couldn't retrieve Yum package metadata", e);
 		}
 
 	}
 	
-    private Map<String, String> buildPackageMap(Metadata metadata) {
+    private Map<String, String> buildPackageMap(Metadata metadata, Optional<String> packFilter) {
         final Map<String, String> map = Maps.newTreeMap();
         for (Package pack : metadata.getPackages()) {
             map.put(pack.getRpmString(), pack.getNormalisedString());

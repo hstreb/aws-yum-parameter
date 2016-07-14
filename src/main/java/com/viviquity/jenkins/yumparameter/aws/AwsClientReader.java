@@ -22,12 +22,14 @@ import com.viviquity.jenkins.yumparameter.aws.yum.YumMetadataProvider;
 public class AwsClientReader {
     private final AmazonS3Client awsClient;
     private final String repoPath;
+    private final Optional<String> pack;
     private final Optional<String> awsAccessKeyId;
     private final Optional<String> awsSecretAccessKey;
     private final PackageMetadataProvider packageMetadataProvider;
 
     private AwsClientReader(Builder builder)  {
         this.repoPath = builder.repoPath;
+        this.pack = builder.pack;
         this.awsAccessKeyId = builder.awsAccessKeyId;
         this.awsSecretAccessKey = builder.awsSecretAccessKey;
         this.awsClient = buildClient();
@@ -35,9 +37,9 @@ public class AwsClientReader {
     }
 
 
-    public Map<String, String> getPackageMap(final String bucketName, final String packageName) throws IOException {
-        final S3Object s3Object = awsClient.getObject(bucketName, packageMetadataProvider.getMetatdataFilePath (repoPath));
-        return packageMetadataProvider.extractPackageMetadata(s3Object.getObjectContent());
+    public Map<String, String> getPackageMap(final String bucketName) throws IOException {
+        final S3Object s3Object = awsClient.getObject(bucketName, packageMetadataProvider.getMetatdataFilePath(repoPath));
+        return packageMetadataProvider.extractPackageMetadata(s3Object.getObjectContent(), pack);
     }
 
     private AmazonS3Client buildClient() {
@@ -52,16 +54,25 @@ public class AwsClientReader {
     public static class Builder {
     	private final String repoType;
         private final String repoPath;
+        private final Optional<String> pack;
         private Optional<String> awsAccessKeyId = Optional.absent();
         private Optional<String> awsSecretAccessKey = Optional.absent();
 
-        private Builder(String repoPath, String repoType) {
+        private Builder(String repoPath, String repoType, Optional<String> pack) {
             this.repoPath = repoPath;
             this.repoType = repoType;
+            this.pack = pack;
         }
 
         public static Builder newInstance(String repoPath, String repoType) {
-            return new Builder(repoPath, repoType);
+            Optional<String> pack = Optional.absent();
+            return new Builder(repoPath, repoType, pack);
+        }
+
+        public static Builder newInstance(String repoPath, String repoType, String pack) {
+            Optional<String> absent = Optional.absent();
+            Optional<String> packOptional = pack.isEmpty() ? absent : Optional.fromNullable(pack);
+            return new Builder(repoPath, repoType, packOptional);
         }
 
         public Builder withAwsAccessKeys(String awsAccessKeyId, String awsSecretAccessKey) {
